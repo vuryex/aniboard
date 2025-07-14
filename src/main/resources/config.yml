@@ -1,23 +1,81 @@
 # AniBoard Configuration
 # Use § for legacy color codes (e.g., §a, §c, §6)
 # Use & for legacy color codes (e.g., &a, &c, &6) - works with LuckPerms/Vault
-# Use <#FF00FF> for hex colors
+# Use <#FF00FF>text here</#FF00FF> for hex colors (requires closing tag!)
 # Use " " (space in quotes) for blank lines
+# Ability to add multiple scoreboard layouts
+layouts:
+  default: # layout name
+    title: "§6§lAni<#FFD700>Board</#FFD700>"
+    lines:
+      - " "
+      - "§7Welcome <#00FFFF>%player_name%</#00FFFF>§7!"
+      - "§7Rank: %vault_prefix%"
+      - "§7Balance: §a$%vault_eco_balance_fixed%"
+      - " "
+      - "§7Health: §c%player_health%§7/§c%player_max_health%"
+      - "§7Level: <#00BFFF>%player_level%</#00BFFF>"
+      - " "
+      - "§7Players Online: §e%server_online%§7/§e%server_max%"
+      - "§7Server: <#FF69B4>mcserver.com</#FF69B4>"
+      - " "
 
-scoreboard:
-  title: "§6§lAni<#FFD700>Board"
-  lines:
-    - " "
-    - "§7Welcome <#00FFFF>%player_name%§7!"
-    - "§7Rank: %vault_prefix%"
-    - "§7Balance: §a$%vault_eco_balance_fixed%"
-    - " "
-    - "§7Health: §c%player_health%§7/§c%player_max_health%"
-    - "§7Level: <#00BFFF>%player_level%"
-    - " "
-    - "§7Players Online: §e%server_online%§7/§e%server_max%"
-    - "§7Server: <#FF69B4>mcserver.com"
-    - " "
+  pvp:
+    title: "§c§lPvP <#FF0000>Arena</#FF0000>"
+    lines:
+      - " "
+      - "§c⚔ §7Player: <#FF6B6B>%player_name%</#FF6B6B>"
+      - "§7Kills: §a%statistic_player_kills%"
+      - "§7Deaths: §c%statistic_deaths%"
+      - "§7K/D: §e%statistic_kill_death_ratio%"
+      - " "
+      - "§7Health: §c❤ %player_health%§7/§c%player_max_health%"
+      - "§7Food: §6🍖 %player_food%§7/20"
+      - " "
+      - "§7Online: §b%server_online% §7fighters"
+      - " "
+
+#  survival:
+#    title: "§2§lSurvival <#228B22>World</#228B22>"
+#    lines:
+#      - " "
+#      - "§7Explorer: <#90EE90>%player_name%</#90EE90>"
+#      - "§7Rank: %vault_prefix%"
+#      - "§7Money: §a$%vault_eco_balance_fixed%"
+#      - " "
+#      - "§7Level: §b⭐ %player_level% §7(§b%player_exp_to_level%§7)"
+#      - "§7World: §e%player_world%"
+#      - "§7Location: §7%player_x%§8, §7%player_y%§8, §7%player_z%"
+#      - " "
+#      - "§7Players: §e%server_online%§7/§e%server_max%"
+#      - " "
+#
+#  minigames:
+#    title: "§d§lMini<#FF1493>Games</#FF1493>"
+#    lines:
+#      - " "
+#      - "§d🎮 §7Player: <#FF69B4>%player_name%</#FF69B4>"
+#      - "§7Wins: §a%statistic_games_won%"
+#      - "§7Losses: §c%statistic_games_lost%"
+#      - "§7Win Rate: §e%statistic_win_rate%%"
+#      - " "
+#      - "§7Current Game: §b%current_game%"
+#      - "§7Game Time: §6%game_timer%"
+#      - " "
+#      - "§7Online: §e%server_online% §7players"
+#      - " "
+#
+#  styling_example:
+#    title: "<#FF00FF>&lBold Purple Title</#FF00FF>"
+#    lines:
+#      - " "
+#      - "<#FF0000>&lBold Red Text</#FF0000>"
+#      - "<#00FF00>&oItalic Green Text</#00FF00>"
+#      - "<#0000FF>&nUnderlined Blue</#0000FF>"
+#      - "<#FFFF00>&l&oStyled Yellow Text</#FFFF00>"
+#      - "§7Normal text then <#FF69B4>&lBold Pink</#FF69B4> §7back to normal"
+#      - "Use &r to reset: <#FF0000>&lBold Red&r Normal</#FF0000>"
+#      - " "
 
 # Settings
 settings:
@@ -28,27 +86,19 @@ settings:
   enabled-by-default: true
 
   # Should the scoreboard automatically enable when a player joins?
-  auto-enable-on-join: false
+  auto-enable-on-join: true
 
-# Color codes reference:
-# Legacy (§ or &):
-# §0/&0 = Black        §8/&8 = Dark Gray
-# §1/&1 = Dark Blue    §9/&9 = Blue
-# §2/&2 = Dark Green   §a/&a = Green
-# §3/&3 = Dark Aqua    §b/&b = Aqua
-# §4/&4 = Dark Red     §c/&c = Red
-# §5/&5 = Dark Purple  §d/&d = Light Purple
-# §6/&6 = Gold         §e/&e = Yellow
-# §7/&7 = Gray         §f/&f = White
-# §l/&l = Bold         §o/&o = Italic
-# §n/&n = Underline    §m/&m = Strikethrough
-# §k/&k = Magic        §r/&r = Reset
+  # Default layout to use when players first join or toggle without specifying
+  default-layout: "default"
+
+  # Allow players to switch between layouts (if false, only admins can)
+  allow-layout-switching: true
+
+# Hex Color Usage Examples:
+# <#FF0000>Red text</#FF0000>
+# <#00FF00>&lBold green text</#00FF00>
+# <#0000FF>&l&oStyled blue text</#0000FF>
+# <#FFFF00>Yellow&r reset styling</#FFFF00>
 #
-# Hex colors: <#RRGGBB>
-# Examples:
-# <#FF0000> = Red
-# <#00FF00> = Green
-# <#0000FF> = Blue
-# <#FFD700> = Gold
-# <#FF69B4> = Hot Pink
-# <#00FFFF> = Cyan
+# Note: Hex colors preserve styling codes (&l, &o, &n, &m, &k) within them
+# Use &r to manually reset styling if needed

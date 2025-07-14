@@ -4,20 +4,67 @@
 # Use <#FF00FF> for hex colors
 # Use " " (space in quotes) for blank lines
 
-scoreboard:
-  title: "§6§lAni<#FFD700>Board"
-  lines:
-    - " "
-    - "§7Welcome <#00FFFF>%player_name%§7!"
-    - "§7Rank: %vault_prefix%"
-    - "§7Balance: §a$%vault_eco_balance_fixed%"
-    - " "
-    - "§7Health: §c%player_health%§7/§c%player_max_health%"
-    - "§7Level: <#00BFFF>%player_level%"
-    - " "
-    - "§7Players Online: §e%server_online%§7/§e%server_max%"
-    - "§7Server: <#FF69B4>mcserver.com"
-    - " "
+# Multiple scoreboard layouts - add as many as you want!
+layouts:
+  default:
+    title: "§6§lAni<#FFD700>§lBoard"
+    lines:
+      - " "
+      - "§7Welcome <#00FFFF>%player_name%§7!"
+      - "§7Rank: %vault_prefix%"
+      - "§7Balance: §a$%vault_eco_balance_fixed%"
+      - " "
+      - "§7Health: §c%player_health%§7/§c%player_max_health%"
+      - "§7Level: <#00BFFF>%player_level%"
+      - " "
+      - "§7Players Online: §e%server_online%§7/§e%server_max%"
+      - "§7Server: <#FF69B4>mcserver.com"
+      - " "
+
+#  pvp:
+#    title: "§c§lPvP <#FF0000>§lArena"
+#    lines:
+#      - " "
+#      - "§c⚔ §7Player: <#FF6B6B>%player_name%"
+#      - "§7Kills: §a%statistic_player_kills%"
+#      - "§7Deaths: §c%statistic_deaths%"
+#      - "§7K/D: §e%statistic_kill_death_ratio%"
+#      - " "
+#      - "§7Health: §c❤ %player_health%§7/§c%player_max_health%"
+#      - "§7Food: §6🍖 %player_food%§7/20"
+#      - " "
+#      - "§7Online: §b%server_online% §7fighters"
+#      - " "
+
+#  survival:
+#    title: "§2§lSurvival <#228B22>World"
+#    lines:
+#      - " "
+#      - "§7Explorer: <#90EE90>%player_name%"
+#      - "§7Rank: %vault_prefix%"
+#      - "§7Money: §a$%vault_eco_balance_fixed%"
+#      - " "
+#      - "§7Level: §b⭐ %player_level% §7(§b%player_exp_to_level%§7)"
+#      - "§7World: §e%player_world%"
+#      - "§7Location: §7%player_x%§8, §7%player_y%§8, §7%player_z%"
+#      - " "
+#      - "§7Players: §e%server_online%§7/§e%server_max%"
+#      - " "
+#
+#  minigames:
+#    title: "§d§lMini<#FF1493>Games"
+#    lines:
+#      - " "
+#      - "§d🎮 §7Player: <#FF69B4>%player_name%"
+#      - "§7Wins: §a%statistic_games_won%"
+#      - "§7Losses: §c%statistic_games_lost%"
+#      - "§7Win Rate: §e%statistic_win_rate%%"
+#      - " "
+#      - "§7Current Game: §b%current_game%"
+#      - "§7Game Time: §6%game_timer%"
+#      - " "
+#      - "§7Online: §e%server_online% §7players"
+#      - " "
 
 # Settings
 settings:
@@ -29,6 +76,12 @@ settings:
 
   # Should the scoreboard automatically enable when a player joins?
   auto-enable-on-join: true
+
+  # Default layout to use when players first join or toggle without specifying
+  default-layout: "default"
+
+  # Allow players to switch between layouts (if false, only admins can)
+  allow-layout-switching: true
 
 # Color codes reference:
 # Legacy (§ or &):

@@ -14,26 +14,61 @@ public class ScoreboardManager {
 
     private final Aniboard plugin;
     private final Set<UUID> enabledPlayers;
+    private final Map<UUID, String> playerLayouts;
     private BukkitRunnable updateTask;
 
     public ScoreboardManager(Aniboard plugin) {
         this.plugin = plugin;
         this.enabledPlayers = new HashSet<>();
+        this.playerLayouts = new HashMap<>();
         startUpdateTask();
     }
 
     public boolean toggleScoreboard(Player player) {
+        return toggleScoreboard(player, null);
+    }
+
+    public boolean toggleScoreboard(Player player, String layoutName) {
         UUID uuid = player.getUniqueId();
 
         if (enabledPlayers.contains(uuid)) {
-            enabledPlayers.remove(uuid);
-            removeScoreboard(player);
-            return false;
+            if (layoutName != null && plugin.getConfigManager().layoutExists(layoutName)) {
+                playerLayouts.put(uuid, layoutName);
+                updateScoreboard(player);
+                return true;
+            } else {
+                enabledPlayers.remove(uuid);
+                playerLayouts.remove(uuid);
+                removeScoreboard(player);
+                return false;
+            }
         } else {
             enabledPlayers.add(uuid);
+            String layout = layoutName != null && plugin.getConfigManager().layoutExists(layoutName)
+                    ? layoutName : plugin.getConfigManager().getDefaultLayout();
+            playerLayouts.put(uuid, layout);
             createScoreboard(player);
             return true;
         }
+    }
+
+    public boolean setPlayerLayout(Player player, String layoutName) {
+        if (!plugin.getConfigManager().layoutExists(layoutName)) {
+            return false;
+        }
+
+        UUID uuid = player.getUniqueId();
+        playerLayouts.put(uuid, layoutName);
+
+        if (enabledPlayers.contains(uuid)) {
+            updateScoreboard(player);
+        }
+
+        return true;
+    }
+
+    public String getPlayerLayout(Player player) {
+        return playerLayouts.getOrDefault(player.getUniqueId(), plugin.getConfigManager().getDefaultLayout());
     }
 
     public void createScoreboard(Player player) {
@@ -41,20 +76,16 @@ public class ScoreboardManager {
             return;
         }
 
+        String layoutName = getPlayerLayout(player);
+
         org.bukkit.scoreboard.ScoreboardManager scoreboardManager = Bukkit.getScoreboardManager();
         Scoreboard scoreboard = scoreboardManager.getNewScoreboard();
 
         Objective objective = scoreboard.registerNewObjective("aniboard", Criteria.DUMMY,
-                ColorUtils.colorizeComponent(plugin.getConfigManager().getScoreboardTitle()));
-
-        try {
-            objective.numberFormat(io.papermc.paper.scoreboard.numbers.NumberFormat.blank());
-        } catch (Exception e) {
-            plugin.getLogger().warning("Could not hide scoreboard numbers - requires Minecraft 1.20.3+ client and server");
-        }
+                ColorUtils.colorizeComponent(plugin.getConfigManager().getLayoutTitle(layoutName)));
 
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        updateScoreboardContent(player, objective);
+        updateScoreboardContent(player, objective, layoutName);
         player.setScoreboard(scoreboard);
     }
 
@@ -87,6 +118,8 @@ public class ScoreboardManager {
             return;
         }
 
+        String layoutName = getPlayerLayout(player);
+
         Scoreboard scoreboard = player.getScoreboard();
         if (scoreboard == null || scoreboard.equals(Bukkit.getScoreboardManager().getMainScoreboard())) {
             createScoreboard(player);
@@ -99,23 +132,17 @@ public class ScoreboardManager {
             return;
         }
 
-        objective.displayName(ColorUtils.colorizeComponent(plugin.getConfigManager().getScoreboardTitle()));
-
-        try {
-            objective.numberFormat(io.papermc.paper.scoreboard.numbers.NumberFormat.blank());
-        } catch (Exception e) {
-            plugin.getLogger().warning("Could not hide scoreboard numbers - requires Minecraft 1.20.3+ client and server");
-        }
+        objective.displayName(ColorUtils.colorizeComponent(plugin.getConfigManager().getLayoutTitle(layoutName)));
 
         for (String entry : scoreboard.getEntries()) {
             scoreboard.resetScores(entry);
         }
 
-        updateScoreboardContent(player, objective);
+        updateScoreboardContent(player, objective, layoutName);
     }
 
-    private void updateScoreboardContent(Player player, Objective objective) {
-        List<String> lines = plugin.getConfigManager().getScoreboardLines();
+    private void updateScoreboardContent(Player player, Objective objective, String layoutName) {
+        List<String> lines = plugin.getConfigManager().getLayoutLines(layoutName);
 
         for (String entry : objective.getScoreboard().getEntries()) {
             objective.getScoreboard().resetScores(entry);
@@ -132,7 +159,9 @@ public class ScoreboardManager {
                 line = " ";
             }
 
-            Score score = objective.getScore(line);
+            String uniqueLine = ensureUniqueLine(objective, line);
+
+            Score score = objective.getScore(uniqueLine);
             score.setScore(lines.size() - i);
         }
     }
@@ -146,8 +175,6 @@ public class ScoreboardManager {
         }
         return line;
     }
-
-
 
     private void startUpdateTask() {
         int updateInterval = plugin.getConfigManager().getUpdateInterval();
@@ -164,6 +191,9 @@ public class ScoreboardManager {
 
     public void addPlayer(Player player) {
         enabledPlayers.add(player.getUniqueId());
+        if (!playerLayouts.containsKey(player.getUniqueId())) {
+            playerLayouts.put(player.getUniqueId(), plugin.getConfigManager().getDefaultLayout());
+        }
         if (plugin.getConfigManager().isEnabledByDefault()) {
             createScoreboard(player);
         }
@@ -171,5 +201,6 @@ public class ScoreboardManager {
 
     public void removePlayer(Player player) {
         enabledPlayers.remove(player.getUniqueId());
+        playerLayouts.remove(player.getUniqueId());
     }
 }

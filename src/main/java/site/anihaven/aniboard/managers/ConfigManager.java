@@ -1,11 +1,10 @@
 package site.anihaven.aniboard.managers;
 
 import site.anihaven.aniboard.Aniboard;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class ConfigManager {
 
@@ -20,25 +19,12 @@ public class ConfigManager {
     private void loadConfig() {
         plugin.saveDefaultConfig();
         config = plugin.getConfig();
-
         setDefaults();
     }
 
     private void setDefaults() {
-        if (!config.contains("scoreboard.title")) {
-            config.set("scoreboard.title", "§6§lAni<#FFD700>§lBoard");
-        }
-
-        if (!config.contains("scoreboard.lines")) {
-            config.set("scoreboard.lines", Arrays.asList(
-                    " ",
-                    "§7Welcome <#00FFFF>%player_name%§7!",
-                    "§7Rank: §e%vault_rank%",
-                    " ",
-                    "§7Players Online: §b%server_online%",
-                    "§7Server: <#FF69B4>mcserver.com",
-                    " "
-            ));
+        if (!config.contains("layouts")) {
+            setupDefaultLayouts();
         }
 
         if (!config.contains("settings.update-interval")) {
@@ -53,7 +39,51 @@ public class ConfigManager {
             config.set("settings.auto-enable-on-join", true);
         }
 
+        if (!config.contains("settings.default-layout")) {
+            config.set("settings.default-layout", "default");
+        }
+
+        if (!config.contains("settings.allow-layout-switching")) {
+            config.set("settings.allow-layout-switching", true);
+        }
+
         plugin.saveConfig();
+    }
+
+    private void setupDefaultLayouts() {
+        Map<String, Object> defaultLayout = new HashMap<>();
+        defaultLayout.put("title", "§6§lAni<#FFD700>§lBoard");
+        defaultLayout.put("lines", Arrays.asList(
+                " ",
+                "§7Welcome <#00FFFF>%player_name%§7!",
+                "§7Rank: %vault_prefix%",
+                "§7Balance: §a$%vault_eco_balance_fixed%",
+                " ",
+                "§7Health: §c%player_health%§7/§c%player_max_health%",
+                "§7Level: <#00BFFF>%player_level%",
+                " ",
+                "§7Players Online: §e%server_online%§7/§e%server_max%",
+                "§7Server: <#FF69B4>mcserver.com",
+                " "
+        ));
+
+        Map<String, Object> pvpLayout = new HashMap<>();
+        pvpLayout.put("title", "§c§lPvP <#FF0000§l>Arena");
+        pvpLayout.put("lines", Arrays.asList(
+                " ",
+                "§c⚔ §7Player: <#FF6B6B>%player_name%",
+                "§7Kills: §a%statistic_player_kills%",
+                "§7Deaths: §c%statistic_deaths%",
+                " ",
+                "§7Health: §c❤ %player_health%§7/§c%player_max_health%",
+                "§7Food: §6🍖 %player_food%§7/20",
+                " ",
+                "§7Online: §b%server_online% §7fighters",
+                " "
+        ));
+
+        config.set("layouts.default", defaultLayout);
+        config.set("layouts.pvp", pvpLayout);
     }
 
     public void reloadConfig() {
@@ -61,14 +91,29 @@ public class ConfigManager {
         config = plugin.getConfig();
     }
 
-    public String getScoreboardTitle() {
-        return config.getString("scoreboard.title", "§6§lAni<#FFD700>Board");
+    public Set<String> getAvailableLayouts() {
+        ConfigurationSection layoutsSection = config.getConfigurationSection("layouts");
+        return layoutsSection != null ? layoutsSection.getKeys(false) : new HashSet<>();
     }
 
-    public List<String> getScoreboardLines() {
-        List<String> lines = config.getStringList("scoreboard.lines");
-        // No more processing for ">" - just return the lines as-is
-        return lines;
+    public boolean layoutExists(String layoutName) {
+        return config.contains("layouts." + layoutName);
+    }
+
+    public String getLayoutTitle(String layoutName) {
+        return config.getString("layouts." + layoutName + ".title", "§6§lAniBoard");
+    }
+
+    public List<String> getLayoutLines(String layoutName) {
+        return config.getStringList("layouts." + layoutName + ".lines");
+    }
+
+    public String getDefaultLayout() {
+        return config.getString("settings.default-layout", "default");
+    }
+
+    public boolean isLayoutSwitchingAllowed() {
+        return config.getBoolean("settings.allow-layout-switching", true);
     }
 
     public int getUpdateInterval() {
@@ -81,5 +126,14 @@ public class ConfigManager {
 
     public boolean isAutoEnableOnJoin() {
         return config.getBoolean("settings.auto-enable-on-join", true);
+    }
+
+    // Legacy methods for backward compatibility
+    public String getScoreboardTitle() {
+        return getLayoutTitle(getDefaultLayout());
+    }
+
+    public List<String> getScoreboardLines() {
+        return getLayoutLines(getDefaultLayout());
     }
 }
