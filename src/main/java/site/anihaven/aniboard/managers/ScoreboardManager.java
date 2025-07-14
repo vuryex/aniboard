@@ -44,21 +44,13 @@ public class ScoreboardManager {
         org.bukkit.scoreboard.ScoreboardManager scoreboardManager = Bukkit.getScoreboardManager();
         Scoreboard scoreboard = scoreboardManager.getNewScoreboard();
 
-        // Create objective with blank number format (1.20.3+ feature for hiding numbers)
         Objective objective = scoreboard.registerNewObjective("aniboard", Criteria.DUMMY,
                 ColorUtils.colorizeComponent(plugin.getConfigManager().getScoreboardTitle()));
 
-        // Try to set blank number format (1.20.3+) to hide numbers completely
         try {
-            // Use reflection to set blank number format if available
-            var numberFormat = Class.forName("io.papermc.paper.scoreboard.numbers.NumberFormat");
-            var blankMethod = numberFormat.getMethod("blank");
-            var blankFormat = blankMethod.invoke(null);
-
-            var setNumberFormatMethod = objective.getClass().getMethod("numberFormat", numberFormat);
-            setNumberFormatMethod.invoke(objective, blankFormat);
-        } catch (Exception ignored) {
-            // Not available on this version - numbers will show
+            objective.numberFormat(io.papermc.paper.scoreboard.numbers.NumberFormat.blank());
+        } catch (Exception e) {
+            plugin.getLogger().warning("Could not hide scoreboard numbers - requires Minecraft 1.20.3+ client and server");
         }
 
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -109,16 +101,10 @@ public class ScoreboardManager {
 
         objective.displayName(ColorUtils.colorizeComponent(plugin.getConfigManager().getScoreboardTitle()));
 
-        // Try to set blank number format again in case it wasn't set during creation
         try {
-            var numberFormat = Class.forName("io.papermc.paper.scoreboard.numbers.NumberFormat");
-            var blankMethod = numberFormat.getMethod("blank");
-            var blankFormat = blankMethod.invoke(null);
-
-            var setNumberFormatMethod = objective.getClass().getMethod("numberFormat", numberFormat);
-            setNumberFormatMethod.invoke(objective, blankFormat);
-        } catch (Exception ignored) {
-            // Not available on this version
+            objective.numberFormat(io.papermc.paper.scoreboard.numbers.NumberFormat.blank());
+        } catch (Exception e) {
+            plugin.getLogger().warning("Could not hide scoreboard numbers - requires Minecraft 1.20.3+ client and server");
         }
 
         for (String entry : scoreboard.getEntries()) {
@@ -131,19 +117,12 @@ public class ScoreboardManager {
     private void updateScoreboardContent(Player player, Objective objective) {
         List<String> lines = plugin.getConfigManager().getScoreboardLines();
 
-        // Clear existing scores and teams
         for (String entry : objective.getScoreboard().getEntries()) {
             objective.getScoreboard().resetScores(entry);
         }
 
-        for (Team team : objective.getScoreboard().getTeams()) {
-            team.unregister();
-        }
-
-        // Remove any null lines
         lines.removeIf(Objects::isNull);
 
-        // Simple approach: just use the lines directly without teams
         for (int i = 0; i < lines.size() && i < 15; i++) {
             String line = lines.get(i);
             line = PlaceholderUtils.setPlaceholders(player, line);
@@ -153,11 +132,7 @@ public class ScoreboardManager {
                 line = " ";
             }
 
-            // Make each line unique
-            String uniqueLine = ensureUniqueLine(objective, line);
-
-            // Set score normally - we can't avoid the numbers in vanilla Minecraft
-            Score score = objective.getScore(uniqueLine);
+            Score score = objective.getScore(line);
             score.setScore(lines.size() - i);
         }
     }
@@ -171,6 +146,8 @@ public class ScoreboardManager {
         }
         return line;
     }
+
+
 
     private void startUpdateTask() {
         int updateInterval = plugin.getConfigManager().getUpdateInterval();

@@ -2,6 +2,7 @@ package site.anihaven.aniboard.utils;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.format.TextColor;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -9,33 +10,67 @@ import java.util.regex.Pattern;
 public class ColorUtils {
 
     private static final Pattern HEX_PATTERN = Pattern.compile("<#([A-Fa-f0-9]{6})>");
+    private static final LegacyComponentSerializer LEGACY_SERIALIZER = LegacyComponentSerializer.legacySection();
 
     public static String colorize(String text) {
         if (text == null) return "";
 
-        // First translate hex colors to § format
-        text = translateHexColors(text);
-
-        // Then translate & codes to § codes (for LuckPerms/Vault compatibility)
-        // But be careful not to replace & inside hex codes
         text = translateLegacyColors(text);
+        text = translateHexColors(text);
 
         return text;
     }
 
     private static String translateLegacyColors(String text) {
-        // Replace & with § but only for valid color codes
         return text.replaceAll("&([0-9a-fk-orA-FK-OR])", "§$1");
     }
 
     public static Component colorizeComponent(String text) {
         if (text == null) return Component.empty();
 
-        // Process hex colors and § codes
-        text = colorize(text);
+        text = translateLegacyColors(text);
 
-        // Use § as the color code character
-        return LegacyComponentSerializer.legacySection().deserialize(text);
+        Component component = Component.empty();
+        Matcher matcher = HEX_PATTERN.matcher(text);
+        int lastEnd = 0;
+
+        while (matcher.find()) {
+            String beforeHex = text.substring(lastEnd, matcher.start());
+            if (!beforeHex.isEmpty()) {
+                component = component.append(LEGACY_SERIALIZER.deserialize(beforeHex));
+            }
+
+            String hexCode = matcher.group(1);
+            TextColor color = TextColor.fromHexString("#" + hexCode);
+
+            int nextStart = matcher.end();
+            int nextHexStart = text.indexOf("<#", nextStart);
+            String coloredText;
+
+            if (nextHexStart == -1) {
+                coloredText = text.substring(nextStart);
+                lastEnd = text.length();
+            } else {
+                coloredText = text.substring(nextStart, nextHexStart);
+                lastEnd = nextHexStart;
+            }
+
+            if (!coloredText.isEmpty()) {
+                Component coloredComponent = LEGACY_SERIALIZER.deserialize(coloredText).color(color);
+                component = component.append(coloredComponent);
+            }
+        }
+
+        if (lastEnd < text.length()) {
+            String remaining = text.substring(lastEnd);
+            component = component.append(LEGACY_SERIALIZER.deserialize(remaining));
+        }
+
+        if (component.equals(Component.empty())) {
+            return LEGACY_SERIALIZER.deserialize(text);
+        }
+
+        return component;
     }
 
     private static String translateHexColors(String text) {
@@ -46,7 +81,6 @@ public class ColorUtils {
             String hexCode = matcher.group(1);
             String replacement = "§x";
 
-            // Convert hex to § format: §x§F§F§0§0§F§F
             for (char c : hexCode.toCharArray()) {
                 replacement += "§" + c;
             }
@@ -61,12 +95,8 @@ public class ColorUtils {
     public static String stripColors(String text) {
         if (text == null) return "";
 
-        // Remove hex colors first
         text = HEX_PATTERN.matcher(text).replaceAll("");
 
-        // Strip § color codes
-        return LegacyComponentSerializer.legacySection().serialize(
-                Component.text(text)
-        );
+        return text.replaceAll("§[0-9a-fk-orA-FK-OR]", "");
     }
 }

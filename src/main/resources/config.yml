@@ -28,7 +28,7 @@ settings:
   enabled-by-default: true
 
   # Should the scoreboard automatically enable when a player joins?
-  auto-enable-on-join: true
+  auto-enable-on-join: false
 
 # Color codes reference:
 # Legacy (§ or &):
