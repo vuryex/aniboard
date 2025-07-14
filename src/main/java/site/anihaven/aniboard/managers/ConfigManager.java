@@ -47,36 +47,40 @@ public class ConfigManager {
             config.set("settings.allow-layout-switching", true);
         }
 
+        if (!config.contains("settings.notify-ops-missing-papi")) {
+            config.set("settings.notify-ops-missing-papi", true);
+        }
+
         plugin.saveConfig();
     }
 
     private void setupDefaultLayouts() {
         Map<String, Object> defaultLayout = new HashMap<>();
-        defaultLayout.put("title", "§6§lAni<#FFD700>§lBoard");
+        defaultLayout.put("title", "§6§lAni<#FFD700>Board");
         defaultLayout.put("lines", Arrays.asList(
                 " ",
-                "§7Welcome <#00FFFF>%player_name%§7!",
+                "§7Welcome <#00FFFF>%player_name%</#00FFFF>§7!",
                 "§7Rank: %vault_prefix%",
                 "§7Balance: §a$%vault_eco_balance_fixed%",
                 " ",
                 "§7Health: §c%player_health%§7/§c%player_max_health%",
-                "§7Level: <#00BFFF>%player_level%",
+                "§7Level: <#00BFFF>%player_level%</#00BFFF>",
                 " ",
                 "§7Players Online: §e%server_online%§7/§e%server_max%",
-                "§7Server: <#FF69B4>mcserver.com",
+                "§7Server: <#FF69B4>mcserver.com</#FF69B4>",
                 " "
         ));
 
         Map<String, Object> pvpLayout = new HashMap<>();
-        pvpLayout.put("title", "§c§lPvP <#FF0000§l>Arena");
+        pvpLayout.put("title", "§c§lPvP <#FF0000>Arena</#FF0000>");
         pvpLayout.put("lines", Arrays.asList(
                 " ",
-                "§c⚔ §7Player: <#FF6B6B>%player_name%",
+                "§c§7Player: <#FF6B6B>%player_name%",
                 "§7Kills: §a%statistic_player_kills%",
                 "§7Deaths: §c%statistic_deaths%",
                 " ",
-                "§7Health: §c❤ %player_health%§7/§c%player_max_health%",
-                "§7Food: §6🍖 %player_food%§7/20",
+                "§7Health: §c%player_health%§7/§c%player_max_health%",
+                "§7Food: §6%player_food%§7/20",
                 " ",
                 "§7Online: §b%server_online% §7fighters",
                 " "
@@ -126,6 +130,15 @@ public class ConfigManager {
 
     public boolean isAutoEnableOnJoin() {
         return config.getBoolean("settings.auto-enable-on-join", true);
+    }
+
+    public boolean shouldNotifyOpsMissingPAPI() {
+        return config.getBoolean("settings.notify-ops-missing-papi", true);
+    }
+
+    public void setNotifyOpsMissingPAPI(boolean notify) {
+        config.set("settings.notify-ops-missing-papi", notify);
+        plugin.saveConfig();
     }
 
     // Legacy methods for backward compatibility

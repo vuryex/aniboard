@@ -197,6 +197,29 @@ public class ScoreboardManager {
         if (plugin.getConfigManager().isEnabledByDefault()) {
             createScoreboard(player);
         }
+
+        // Check for PlaceholderAPI and notify ops
+        if (!Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            notifyOpAboutMissingPAPI(player);
+        }
+    }
+
+    private void notifyOpAboutMissingPAPI(Player player) {
+        if (!player.isOp() || !plugin.getConfigManager().shouldNotifyOpsMissingPAPI()) {
+            return;
+        }
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                String message = ColorUtils.colorize(
+                        "§e[AniBoard] §7It seems like you do not have PlaceholderAPI installed. " +
+                                "§7We recommend downloading the PlaceholderAPI plugin to make full use of our features! " +
+                                "§7To ignore this message, execute '§e/aniboard notify false§7'"
+                );
+                player.sendMessage(message);
+            }
+        }.runTaskLater(plugin, 60L);
     }
 
     public void removePlayer(Player player) {

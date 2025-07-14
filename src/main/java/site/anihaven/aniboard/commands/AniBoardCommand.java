@@ -112,6 +112,31 @@ public class AniBoardCommand implements CommandExecutor, TabCompleter {
                     sender.sendMessage(ColorUtils.colorize("§aAniBoard configuration reloaded!"));
                     break;
 
+                case "notify":
+                    if (!sender.hasPermission("aniboard.admin")) {
+                        sender.sendMessage(ColorUtils.colorize("§cYou don't have permission to use this command!"));
+                        return true;
+                    }
+
+                    if (args.length < 2) {
+                        boolean current = plugin.getConfigManager().shouldNotifyOpsMissingPAPI();
+                        sender.sendMessage(ColorUtils.colorize("§7PlaceholderAPI notifications: " +
+                                (current ? "§aEnabled" : "§cDisabled")));
+                        sender.sendMessage(ColorUtils.colorize("§7Use §e/aniboard notify <true|false> §7to change"));
+                        return true;
+                    }
+
+                    String value = args[1].toLowerCase();
+                    if (value.equals("true") || value.equals("false")) {
+                        boolean newValue = Boolean.parseBoolean(value);
+                        plugin.getConfigManager().setNotifyOpsMissingPAPI(newValue);
+                        sender.sendMessage(ColorUtils.colorize("§aPlaceholderAPI notifications " +
+                                (newValue ? "§aenabled" : "§cdisabled") + "§a!"));
+                    } else {
+                        sender.sendMessage(ColorUtils.colorize("§cUse §e/aniboard notify <true|false>"));
+                    }
+                    break;
+
                 case "help":
                     sendHelpMessage(sender);
                     break;
@@ -151,6 +176,10 @@ public class AniBoardCommand implements CommandExecutor, TabCompleter {
         if (sender.hasPermission("aniboard.reload")) {
             sender.sendMessage(ColorUtils.colorize("§e/aniboard reload §7- Reload configuration"));
         }
+
+        if (sender.hasPermission("aniboard.admin")) {
+            sender.sendMessage(ColorUtils.colorize("§e/aniboard notify <true|false> §7- Toggle PlaceholderAPI notifications"));
+        }
     }
 
     @Override
@@ -167,6 +196,10 @@ public class AniBoardCommand implements CommandExecutor, TabCompleter {
 
             if (sender.hasPermission("aniboard.reload") && "reload".startsWith(input)) {
                 completions.add("reload");
+            }
+
+            if (sender.hasPermission("aniboard.admin") && "notify".startsWith(input)) {
+                completions.add("notify");
             }
         } else if (args.length == 2) {
             String subCommand = args[0].toLowerCase();
