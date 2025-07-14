@@ -1,0 +1,54 @@
+# AniBoard Configuration
+# Use § for legacy color codes (e.g., §a, §c, §6)
+# Use & for legacy color codes (e.g., &a, &c, &6) - works with LuckPerms/Vault
+# Use <#FF00FF> for hex colors
+# Use " " (space in quotes) for blank lines
+
+scoreboard:
+  title: "§6§lAni<#FFD700>Board"
+  lines:
+    - " "
+    - "§7Welcome <#00FFFF>%player_name%§7!"
+    - "§7Rank: %vault_prefix%"
+    - "§7Balance: §a$%vault_eco_balance_fixed%"
+    - " "
+    - "§7Health: §c%player_health%§7/§c%player_max_health%"
+    - "§7Level: <#00BFFF>%player_level%"
+    - " "
+    - "§7Players Online: §e%server_online%§7/§e%server_max%"
+    - "§7Server: <#FF69B4>mcserver.com"
+    - " "
+
+# Settings
+settings:
+  # How often to update the scoreboard (in seconds)
+  update-interval: 1
+
+  # Should the scoreboard be enabled by default for new players?
+  enabled-by-default: true
+
+  # Should the scoreboard automatically enable when a player joins?
+  auto-enable-on-join: true
+
+# Color codes reference:
+# Legacy (§ or &):
+# §0/&0 = Black        §8/&8 = Dark Gray
+# §1/&1 = Dark Blue    §9/&9 = Blue
+# §2/&2 = Dark Green   §a/&a = Green
+# §3/&3 = Dark Aqua    §b/&b = Aqua
+# §4/&4 = Dark Red     §c/&c = Red
+# §5/&5 = Dark Purple  §d/&d = Light Purple
+# §6/&6 = Gold         §e/&e = Yellow
+# §7/&7 = Gray         §f/&f = White
+# §l/&l = Bold         §o/&o = Italic
+# §n/&n = Underline    §m/&m = Strikethrough
+# §k/&k = Magic        §r/&r = Reset
+#
+# Hex colors: <#RRGGBB>
+# Examples:
+# <#FF0000> = Red
+# <#00FF00> = Green
+# <#0000FF> = Blue
+# <#FFD700> = Gold
+# <#FF69B4> = Hot Pink
+# <#00FFFF> = Cyan
